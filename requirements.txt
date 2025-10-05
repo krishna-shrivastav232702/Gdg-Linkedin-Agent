@@ -1,0 +1,7 @@
+streamlit>=1.20
+requests
+beautifulsoup4
+google-generativeai
+serpapi
+python-dotenv
+tqdm
