@@ -1,9 +1,8 @@
-# app.py
 import streamlit as st
 from utils.searcher import research_topic
 from utils.summarizer import summarise_sources_to_bullets
 from utils.writer import write_linkedin_post
-#from utils.image_gen import build_image_prompt
+
 
 st.set_page_config(page_title="AI LinkedIn Post Generator", layout="wide")
 
