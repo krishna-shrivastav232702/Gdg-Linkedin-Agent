@@ -3,6 +3,9 @@
 [tavily]
 api_key = ""
 
+[llm_provider]
+api_key = ""
+
 [server]
 host = "0.0.0.0"
 port = 8001

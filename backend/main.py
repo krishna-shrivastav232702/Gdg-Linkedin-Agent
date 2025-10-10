@@ -3,6 +3,7 @@ Backend server.
 """
 
 import core.config
+import core.database
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,4 +16,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+db = core.database.Database(
+    config.mongodb.uri,
+    config.mongodb.db_name,
 )
