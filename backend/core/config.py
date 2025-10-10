@@ -21,9 +21,20 @@ class Server(SubConfig):
     cors_allowed_origins: list[str]
 
 @dataclass
+class LLMProviderConfig(SubConfig):
+    api_key: str
+
+@dataclass
+class MongoDB(SubConfig):
+    uri: str
+    db_name: str
+
+@dataclass
 class Config:
     tavily: Tavily
     server: Server
+    llm_provider: LLMProviderConfig
+    mongodb: MongoDB
     def __init__(self, config: dict[str, dict[str, str]]):
         registered_types = get_type_hints(self)
         for k, v in config.items():
