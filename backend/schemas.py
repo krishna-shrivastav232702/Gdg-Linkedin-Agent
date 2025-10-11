@@ -2,7 +2,6 @@
 Contains schemas for FastAPI request and response bodies.
 """
 
-from fastapi import Response
 import core.database
 from pydantic import BaseModel
 import json
@@ -28,3 +27,14 @@ class SessionCreationResponse(GenericResponse):
 
 class SessionDeletionResponse(GenericResponse):
     code: int = 204
+
+class SessionDetailResponse(GenericResponse):
+    session: core.database.Session | None
+    messages: list[dict] | None = None
+    draft: str | None = None
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.code = 200 if self.session else 404
+        if not self.session: return
+        self.messages = self.session.get_messages()
+        self.draft = self.session.draft

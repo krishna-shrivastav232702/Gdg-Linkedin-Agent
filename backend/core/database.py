@@ -26,6 +26,7 @@ class Session:
         self.session_id = session_id
         self.topic_prompt = _data["topic_prompt"]
         self.created_at = _data["created_at"]
+        self.deleted = _data.get("deleted", False)
     @property
     def title(self) -> str:
         return self.db.sessions.find_one({"id": self.session_id}, {"_id": 0, "title": 1})["title"]
@@ -34,6 +35,15 @@ class Session:
         self.db.sessions.update_one(
             {"id": self.session_id},
             {"$set": {"title": value}}
+        )
+    @property
+    def draft(self) -> str:
+        return self.db.sessions.find_one({"id": self.session_id}, {"_id": 0, "draft": 1})["draft"]
+    @draft.setter
+    def draft(self, value: str) -> None:
+        self.db.sessions.update_one(
+            {"id": self.session_id},
+            {"$set": {"draft": value}}
         )
     def get_messages(self) -> list[dict]:
         return self.db.sessions.find_one({"id": self.session_id}, {"_id": 0, "messages": 1})["messages"]
@@ -47,13 +57,6 @@ class Session:
             {"id": self.session_id},
             {"$push": {"messages": {"role": "summary", "content": summary}}}
         )
-    def dict(self) -> dict:
-        return {
-            "session_id": self.session_id,
-            "topic_prompt": self.topic_prompt,
-            "title": self.title,
-            "created_at": self.created_at,
-        }
 
 class SessionManager:
     def __init__(self, db: pymongo.database.Database):
@@ -65,15 +68,20 @@ class SessionManager:
             "topic_prompt": topic_prompt,
             "title": topic_prompt.title()[:64],
             "messages": [], # full message history (no compression or truncation)
+            "draft": "",
+            "researched_texts": [],
             "created_at": time.time()
         })
         return Session(self.db, session_id)
     def list(self) -> list[Session]:
-        return [Session(self.db, s["id"]) for s in self.db.sessions.find({}, {"_id": 0, "id": 1}) if not s.get("deleted", False)]
-    def get(self, session_id: str) -> Session:
-        return Session(self.db, session_id)
+        return [Session(self.db, s["id"]) for s in self.db.sessions.find({}, {"_id": 0, "id": 1, "deleted": 1}) if not s.get("deleted", False)]
+    def get(self, session_id: str) -> Session | None:
+        try:
+            return Session(self.db, session_id)
+        except ValueError:
+            return None
     def delete(self, session_id: str) -> None:
-        # add deleted attribute
+        # soft delete
         self.db.sessions.update_one(
             {"id": session_id},
             {"$set": {"deleted": True}}
