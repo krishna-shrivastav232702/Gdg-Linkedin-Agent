@@ -25,3 +25,6 @@ class SessionListResponse(GenericResponse):
 class SessionCreationResponse(GenericResponse):
     session: core.database.Session
     code: int = 201
+
+class SessionDeletionResponse(GenericResponse):
+    code: int = 204

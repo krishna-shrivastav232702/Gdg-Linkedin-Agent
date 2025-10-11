@@ -31,8 +31,9 @@ def session_list() -> schemas.SessionListResponse:
 @app.post("/a/session/create")
 def session_create(create_request: schemas.SessionCreateRequest) -> schemas.SessionCreationResponse:
     session = db.sessions.create(create_request.topic_prompt)
-    return schemas.SessionCreationResponse(session=session, code=201)
+    return schemas.SessionCreationResponse(session=session)
 
 @app.post("/a/session/{session_id}/delete")
 def session_delete(session_id: str) -> None:
     db.sessions.delete(session_id)
+    return schemas.SessionDeletionResponse()
