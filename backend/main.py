@@ -5,7 +5,7 @@ Backend server.
 import core.config
 import core.database
 import schemas
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -24,27 +24,15 @@ app.add_middleware(
 )
 
 @app.get("/a/session/list")
-def session_list():
+def session_list() -> schemas.SessionListResponse:
     sessions = db.sessions.list()
-    return {
-        "success": True,
-        "code": 200,
-        "sessions": [session.dict() for session in sessions]
-    }
+    return schemas.SessionListResponse(sessions=sessions)
 
 @app.post("/a/session/create")
-def session_create(create_request: schemas.SessionCreateRequest):
+def session_create(create_request: schemas.SessionCreateRequest) -> schemas.SessionCreationResponse:
     session = db.sessions.create(create_request.topic_prompt)
-    return {
-        "success": True,
-        "code": 200,
-        "session": session.dict(),
-    }
+    return schemas.SessionCreationResponse(session=session, code=201)
 
 @app.post("/a/session/{session_id}/delete")
-def session_delete(session_id: str):
+def session_delete(session_id: str) -> None:
     db.sessions.delete(session_id)
-    return {
-        "success": True,
-        "code": 200,
-    }
